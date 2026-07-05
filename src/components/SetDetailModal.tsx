@@ -219,9 +219,13 @@ export function SetDetailModal({ item, onClose }: SetDetailModalProps) {
                       </span>
                     </div>
                     
-                    <h2 className="text-3xl lg:text-5xl font-extrabold text-white mb-8 leading-tight tracking-tight drop-shadow-sm">
+                    <h2 className="text-3xl lg:text-5xl font-extrabold text-white mb-4 leading-tight tracking-tight drop-shadow-sm">
                       {item.set.name}
                     </h2>
+                    
+                    <p className="text-white/70 text-base md:text-lg mb-8 leading-relaxed">
+                      Released in {item.set.year}, the <strong className="text-white font-semibold">{item.set.name}</strong> is a detailed build consisting of {item.set.num_parts.toLocaleString()} pieces. As part of the Rebrickable database, this set is recognized for its unique building experience and is a fantastic addition to your collection.
+                    </p>
 
                     <div className="grid grid-cols-2 gap-4 mb-8">
                       <div className="bg-white/5 rounded-2xl p-4 border border-white/5 shadow-inner">
