@@ -9,8 +9,8 @@ export async function GET(request: Request, { params }: { params: Promise<{ set_
   const year = parseInt(searchParams.get('year') || new Date().getFullYear().toString(), 10);
 
   // Mock Pricing Logic
-  // MSRP: Roughly $0.10 per part
-  const baseMsrp = Math.max(9.99, Math.round((parts * 0.10) / 5) * 5 - 0.01);
+  // MSRP: Roughly $0.13 per part (CAD)
+  const baseMsrp = Math.max(9.99, Math.round((parts * 0.13) / 5) * 5 - 0.01);
   
   // Current Value: Appreciates over time (older sets are worth more), some randomness
   const age = new Date().getFullYear() - year;
@@ -25,6 +25,6 @@ export async function GET(request: Request, { params }: { params: Promise<{ set_
   return NextResponse.json({
     msrp: baseMsrp,
     currentValue: currentValue > baseMsrp ? currentValue : baseMsrp, // Sets rarely drop below MSRP conceptually for this fun display
-    currency: 'USD'
+    currency: 'CAD'
   });
 }

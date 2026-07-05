@@ -63,16 +63,16 @@ export function PortfolioChart({ data, loading }: { data: PortfolioData | null, 
         </div>
         <p className="text-white/50 text-sm mb-2 font-medium">Total Estimated Value</p>
         <h2 className="text-5xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-600 drop-shadow-sm mb-4">
-          ${data.totalValue.toFixed(2)}
+          C${data.totalValue.toFixed(2)}
         </h2>
         
         {data.totalMsrp ? (
           <div className="flex flex-col items-center md:items-start mt-2">
             <p className="text-white/50 text-xs font-medium mb-1">
-              Total MSRP: ${data.totalMsrp.toFixed(2)}
+              Total MSRP: C${data.totalMsrp.toFixed(2)}
             </p>
             <div className={`px-3 py-1 rounded-full text-sm font-bold ${isProfit ? 'bg-green-500/20 text-green-400 border-green-500/30' : 'bg-red-500/20 text-red-400 border-red-500/30'} border`}>
-              {isProfit ? '+' : ''}${profitLoss.toFixed(2)} ({isProfit ? '+' : ''}{profitPercentage.toFixed(1)}%)
+              {isProfit ? '+' : '-'}C${Math.abs(profitLoss).toFixed(2)} ({isProfit ? '+' : ''}{profitPercentage.toFixed(1)}%)
             </div>
           </div>
         ) : (
@@ -87,7 +87,7 @@ export function PortfolioChart({ data, loading }: { data: PortfolioData | null, 
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={chartData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
             <XAxis dataKey="name" stroke="#ffffff40" fontSize={12} tickLine={false} axisLine={false} />
-            <YAxis stroke="#ffffff40" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `$${value}`} />
+            <YAxis stroke="#ffffff40" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `C$${value}`} />
             <Tooltip 
               cursor={{ fill: 'rgba(255, 255, 255, 0.05)' }}
               contentStyle={{ backgroundColor: 'rgba(15, 23, 42, 0.9)', borderColor: 'rgba(255,255,255,0.1)', borderRadius: '16px', color: '#fff' }}

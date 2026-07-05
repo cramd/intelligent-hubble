@@ -267,13 +267,13 @@ export function SetDetailModal({ item, onClose }: SetDetailModalProps) {
                                 <div>
                                   <p className="text-xs text-white/50 mb-1 font-medium uppercase tracking-wider">Original MSRP</p>
                                   <p className="text-xl font-bold text-white/80 drop-shadow-sm">
-                                    ${(pricing?.msrp || metadata.savedMsrp || 0).toFixed(2)}
+                                    C${(pricing?.msrp || metadata.savedMsrp || 0).toFixed(2)}
                                   </p>
                                 </div>
                                 <div>
                                   <p className="text-xs text-white/50 mb-1 font-medium uppercase tracking-wider">Estimated Value</p>
                                   <p className="text-3xl font-black text-green-400 drop-shadow-sm">
-                                    ${(pricing?.currentValue || metadata.savedPrice || 0).toFixed(2)}
+                                    C${(pricing?.currentValue || metadata.savedPrice || 0).toFixed(2)}
                                   </p>
                                 </div>
                               </div>
