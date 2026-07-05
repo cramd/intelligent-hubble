@@ -2,17 +2,18 @@
 
 import { motion } from 'framer-motion';
 import { LegoSet, UserSet } from '@/lib/rebrickable';
-import { Edit2, Check, X, Trash2 } from 'lucide-react';
+import { Edit2, Check, X, Trash2, Star } from 'lucide-react';
 import { useState } from 'react';
 
 interface LegoSetCardProps {
   item: UserSet;
+  rating?: number;
   onClick: () => void;
   onUpdate: (oldSetNum: string, newSetData: UserSet) => void;
   onDelete: () => void;
 }
 
-export function LegoSetCard({ item, onClick, onUpdate, onDelete }: LegoSetCardProps) {
+export function LegoSetCard({ item, rating, onClick, onUpdate, onDelete }: LegoSetCardProps) {
   const { set, quantity } = item;
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState(set.set_num.replace('-1', ''));
@@ -127,7 +128,15 @@ export function LegoSetCard({ item, onClick, onUpdate, onDelete }: LegoSetCardPr
         </div>
 
         <div className="flex items-center justify-between pt-3 mt-3 border-t border-white/10">
-          <span className="text-sm text-white/50">{set.num_parts} parts</span>
+          <div className="flex items-center space-x-3">
+            <span className="text-sm text-white/50">{set.num_parts} parts</span>
+            {!!rating && rating > 0 && (
+              <span className="flex items-center text-xs font-bold text-yellow-400 bg-yellow-400/10 px-1.5 py-0.5 rounded border border-yellow-400/20 shadow-[0_0_8px_rgba(250,204,21,0.2)]">
+                <Star className="w-3 h-3 mr-1 fill-yellow-400" />
+                {rating}/5
+              </span>
+            )}
+          </div>
           {quantity > 1 && (
             <span className="text-xs font-bold px-2 py-0.5 rounded bg-white/20 text-white">
               x{quantity}

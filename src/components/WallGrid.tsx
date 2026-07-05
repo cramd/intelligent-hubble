@@ -260,6 +260,7 @@ export function WallGrid({ collection: initialCollection }: WallGridProps) {
               >
                 <LegoSetCard 
                   item={item} 
+                  rating={portfolioData?.items?.[item.set.set_num]?.ratings?.overall || 0}
                   onClick={() => setSelectedItem(item)} 
                   onUpdate={handleUpdateSet}
                   onDelete={() => handleDeleteSet(item.set.set_num)}
