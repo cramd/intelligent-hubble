@@ -43,12 +43,12 @@ export default async function Home() {
       {/* Dynamic Video Background */}
       <div className="fixed inset-0 z-0 bg-[#0a0a0a]">
         <img 
-          src="https://images.unsplash.com/photo-1524758631624-e2822e304c36?q=80&w=2000&auto=format&fit=crop"
+          src="https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=2000&auto=format&fit=crop"
           alt="Background"
-          className="absolute inset-0 w-full h-full object-cover opacity-80 blur-[2px] scale-105"
+          className="absolute inset-0 w-full h-full object-cover opacity-60 blur-md scale-105"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-[#0f172a]/50 via-transparent to-[#0f172a]/80" />
-        <div className="absolute inset-0 shadow-[inset_0_0_150px_rgba(0,0,0,0.8)]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0f172a]/70 via-[#0f172a]/40 to-[#0f172a]/90" />
+        <div className="absolute inset-0 shadow-[inset_0_0_150px_rgba(0,0,0,0.9)]" />
       </div>
 
       <div className="relative z-10 container mx-auto pt-24 pb-12">
@@ -70,12 +70,14 @@ export default async function Home() {
         )}
 
         <header className="text-center mb-16 px-4">
-          <h1 className="text-5xl md:text-7xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-600 tracking-tight mb-4 drop-shadow-sm">
-            My Brick Showcase
-          </h1>
-          <p className="text-lg md:text-xl text-white/60 font-medium max-w-2xl mx-auto">
-            A premium gallery of your personal LEGO collection, beautifully rendered.
-          </p>
+          <div className="inline-block bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-8 md:p-12 shadow-2xl">
+            <h1 className="text-5xl md:text-7xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500 tracking-tight mb-4 drop-shadow-sm">
+              My Brick Showcase
+            </h1>
+            <p className="text-lg md:text-xl text-white/70 font-medium max-w-2xl mx-auto">
+              A premium gallery of your personal LEGO collection, beautifully rendered.
+            </p>
+          </div>
         </header>
 
         <WallGrid collection={result.data || []} />
