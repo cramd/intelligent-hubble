@@ -261,14 +261,22 @@ export function SetDetailModal({ item, onClose }: SetDetailModalProps) {
                             animate={{ opacity: 1, y: 0 }}
                             className="flex flex-col space-y-4"
                           >
-                            <div className="flex justify-between items-end bg-white/5 p-4 rounded-2xl">
-                              <div>
-                                <p className="text-xs text-white/50 mb-1 font-medium uppercase tracking-wider">Estimated Value</p>
-                                <p className="text-3xl font-black text-green-400 drop-shadow-sm">
-                                  ${(pricing?.currentValue || metadata.savedPrice || 0).toFixed(2)}
-                                </p>
+                            <div className="flex justify-between items-center bg-white/5 p-4 rounded-2xl">
+                              <div className="flex space-x-6">
+                                <div>
+                                  <p className="text-xs text-white/50 mb-1 font-medium uppercase tracking-wider">Original MSRP</p>
+                                  <p className="text-xl font-bold text-white/80 drop-shadow-sm">
+                                    ${(pricing?.msrp || metadata.savedMsrp || 0).toFixed(2)}
+                                  </p>
+                                </div>
+                                <div>
+                                  <p className="text-xs text-white/50 mb-1 font-medium uppercase tracking-wider">Estimated Value</p>
+                                  <p className="text-3xl font-black text-green-400 drop-shadow-sm">
+                                    ${(pricing?.currentValue || metadata.savedPrice || 0).toFixed(2)}
+                                  </p>
+                                </div>
                               </div>
-                              <TrendingUp className="w-8 h-8 text-green-500/50 mb-1" />
+                              <TrendingUp className="w-8 h-8 text-green-500/50" />
                             </div>
                             
                             <button
