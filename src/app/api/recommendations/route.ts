@@ -1,56 +1,119 @@
 import { NextResponse } from 'next/server';
-import { getThemes, getUserSets, LegoSet } from '@/lib/rebrickable';
+import { cookies } from 'next/headers';
+import { getUserSets, getSetsByTheme, getThemes, LegoSet } from '@/lib/rebrickable';
 import { getCachedData, setCachedData } from '@/lib/cache';
 
 export async function GET() {
   try {
-    const userToken = process.env.REBRICKABLE_USER_TOKEN;
+    // 1. Passcode security check
+    const cookieStore = await cookies();
+    const authCookie = cookieStore.get('recommendations_auth')?.value;
+    const serverPasscode = process.env.RECOMMENDATION_PASSCODE || 'bricksecure123';
+    
+    // If not authenticated, return 403 Forbidden
+    if (authCookie !== 'authenticated') {
+      return NextResponse.json({ error: 'Unauthorized: Passcode verification required.' }, { status: 403 });
+    }
+
+    // 2. User Token retrieval
+    const userToken = cookieStore.get('rebrickable_user_token')?.value || process.env.REBRICKABLE_USER_TOKEN;
     if (!userToken) {
-      return NextResponse.json({ error: 'User token is not configured.' }, { status: 500 });
+      return NextResponse.json({ error: 'User is not logged in to Rebrickable.' }, { status: 400 });
     }
 
     const cacheKey = `user-recommendations-${userToken}`;
-    const cachedRecommendations = await getCachedData(cacheKey, 3600 * 24); // Cache for 24 hours
+    const cachedRecommendations = await getCachedData<any>(cacheKey, 3600 * 6); // Cache for 6 hours
     if (cachedRecommendations) {
       return NextResponse.json(cachedRecommendations);
     }
 
-    // A simple recommendation algorithm based on themes:
-    // 1. Get the user's current sets
+    // 3. Get the user's current sets to build theme affinity & filter owned sets
     const userSets = await getUserSets(userToken);
     if (userSets.length === 0) {
-      return NextResponse.json({ recommendations: [] });
+      return NextResponse.json({ recommendations: [], themeAffinity: [] });
     }
 
-    // 2. Find the most popular themes in their collection
-    const themeCounts: Record<number, number> = {};
+    // Create a lookup map of owned set numbers
+    const ownedSets = new Set(userSets.map(item => item.set.set_num));
+
+    // Calculate theme counts
+    const themeMap: Record<number, { name: string; count: number }> = {};
+    
+    // Fetch all themes to construct a map of ID -> Name
+    let themesList = [];
+    try {
+      const themesCacheKey = 'rebrickable-all-themes';
+      const cachedThemes = await getCachedData<any[]>(themesCacheKey, 3600 * 24 * 7); // Cache themes list for a week
+      if (cachedThemes) {
+        themesList = cachedThemes;
+      } else {
+        themesList = await getThemes();
+        await setCachedData(themesCacheKey, themesList);
+      }
+    } catch (e) {
+      console.error('Failed to load themes:', e);
+    }
+
+    const themeNameMap: Record<number, string> = {};
+    for (const theme of themesList) {
+      themeNameMap[theme.id] = theme.name;
+    }
+
     for (const item of userSets) {
       const themeId = item.set.theme_id;
-      themeCounts[themeId] = (themeCounts[themeId] || 0) + 1;
+      const themeName = themeNameMap[themeId] || `Theme ${themeId}`;
+      if (!themeMap[themeId]) {
+        themeMap[themeId] = { name: themeName, count: 0 };
+      }
+      themeMap[themeId].count += item.quantity;
     }
 
-    const topThemeId = Object.keys(themeCounts)
-      .map(id => parseInt(id))
-      .sort((a, b) => themeCounts[b] - themeCounts[a])[0];
+    // Sort themes by count to get top themes
+    const sortedThemes = Object.entries(themeMap)
+      .map(([id, data]) => ({
+        id: parseInt(id),
+        name: data.name,
+        count: data.count
+      }))
+      .sort((a, b) => b.count - a.count);
 
-    // For the MVP, we just return the top theme ID.
-    // In a full implementation, we would query Rebrickable for popular sets in this theme
-    // that the user doesn't own yet (using /lego/sets/?theme_id=...&ordering=-year)
-    // To keep it simple and avoid too many API calls initially, we return dummy data based on the theme.
+    // Get top 3 themes
+    const topThemes = sortedThemes.slice(0, 3);
 
-    const recommendations = [
-      {
-        reason: `Based on your favorite theme (ID: ${topThemeId})`,
-        // We'd ideally fetch real sets here, but we don't want to exhaust API limits during setup
-        sets: [] 
+    // Fetch recommendations for each top theme
+    const recommendations = [];
+    for (const theme of topThemes) {
+      try {
+        const rawSets = await getSetsByTheme(theme.id, 10);
+        // Filter out sets the user already owns
+        const recommendedSets = rawSets
+          .filter(set => !ownedSets.has(set.set_num))
+          .slice(0, 4); // Limit to top 4 recommendations per theme
+
+        if (recommendedSets.length > 0) {
+          recommendations.push({
+            themeId: theme.id,
+            themeName: theme.name,
+            reason: `Because you own ${theme.count} set${theme.count > 1 ? 's' : ''} in the "${theme.name}" theme.`,
+            sets: recommendedSets
+          });
+        }
+      } catch (err) {
+        console.error(`Failed to fetch recommendations for theme ${theme.id}:`, err);
       }
-    ];
+    }
 
-    await setCachedData(cacheKey, recommendations);
+    const result = {
+      recommendations,
+      themeAffinity: sortedThemes.slice(0, 5) // Top 5 themes for affinity chart
+    };
 
-    return NextResponse.json(recommendations);
+    // Cache the final results
+    await setCachedData(cacheKey, result);
+
+    return NextResponse.json(result);
   } catch (error: any) {
     console.error('Error fetching recommendations:', error);
-    return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: error.status || 500 });
+    return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });
   }
 }

@@ -146,3 +146,11 @@ export async function getThemes(): Promise<Theme[]> {
 export async function getSetDetails(setNum: string): Promise<LegoSet> {
   return await fetchFromRebrickable<LegoSet>(`/lego/sets/${setNum}/`);
 }
+
+export async function getSetsByTheme(themeId: number, limit: number = 20): Promise<LegoSet[]> {
+  const response = await fetchFromRebrickable<{ count: number; results: LegoSet[] }>(
+    `/lego/sets/?theme_id=${themeId}&page_size=${limit}&ordering=-num_parts`
+  );
+  return response.results;
+}
+

@@ -7,7 +7,8 @@ import { UserStats } from './UserStats';
 import { AddSetModal } from './AddSetModal';
 import { UserSet } from '@/lib/rebrickable';
 import { motion } from 'framer-motion';
-import { CloudUpload, Plus, AlertCircle } from 'lucide-react';
+import { CloudUpload, Plus, AlertCircle, Sparkles } from 'lucide-react';
+import Link from 'next/link';
 
 interface WallGridProps {
   collection: UserSet[];
@@ -167,6 +168,13 @@ export function WallGrid({ collection: initialCollection }: WallGridProps) {
               <AlertCircle className="w-3 h-3 mr-1" /> {syncError}
             </span>
           )}
+
+          <Link 
+            href="/recommendations"
+            className="flex items-center bg-purple-600/20 hover:bg-purple-600/40 text-purple-300 border border-purple-500/30 px-4 py-2 rounded-xl transition-colors font-medium text-sm"
+          >
+            <Sparkles className="w-4 h-4 mr-2 text-purple-400 animate-pulse" /> Suggestions
+          </Link>
         </div>
 
         {/* Sorting Controls */}
