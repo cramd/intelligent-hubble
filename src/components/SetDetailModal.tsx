@@ -8,6 +8,7 @@ import { DynamicBuildVisualizer } from './DynamicBuildVisualizer';
 
 interface SetMetadata {
   savedPrice?: number;
+  savedMsrp?: number;
   note?: string;
   ratings?: {
     price: number;

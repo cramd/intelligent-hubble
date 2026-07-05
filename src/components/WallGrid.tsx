@@ -9,7 +9,7 @@ import { UserSet } from '@/lib/rebrickable';
 import { motion } from 'framer-motion';
 import { CloudUpload, Plus, AlertCircle, Sparkles } from 'lucide-react';
 import Link from 'next/link';
-import { PortfolioChart } from './PortfolioChart';
+import { PortfolioChart, PortfolioData } from './PortfolioChart';
 import { SetMetadata } from '@/app/api/set-metadata/[set_num]/route';
 
 interface WallGridProps {
@@ -28,7 +28,9 @@ export function WallGrid({ collection: initialCollection }: WallGridProps) {
   const [selectedItem, setSelectedItem] = useState<UserSet | null>(null);
   const [sortBy, setSortBy] = useState<SortOption>('default');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [collectionMetadata, setCollectionMetadata] = useState<Record<string, SetMetadata>>({});
+  
+  const [portfolioData, setPortfolioData] = useState<PortfolioData | null>(null);
+  const [loadingPortfolio, setLoadingPortfolio] = useState(true);
   
   // Sync State
   const [pendingAdditions, setPendingAdditions] = useState<UserSet[]>([]);
@@ -39,20 +41,22 @@ export function WallGrid({ collection: initialCollection }: WallGridProps) {
 
   const hasPendingChanges = pendingAdditions.length > 0 || pendingModifications.length > 0 || pendingDeletions.length > 0;
 
-  useEffect(() => {
-    // Fetch all metadata for sorting by ratings
-    async function fetchMetadata() {
-      try {
-        const res = await fetch('/api/portfolio');
-        if (res.ok) {
-          const data = await res.json();
-          setCollectionMetadata(data.items || {});
-        }
-      } catch (e) {
-        console.error('Failed to fetch collection metadata', e);
+  const fetchPortfolio = async () => {
+    try {
+      const res = await fetch('/api/portfolio');
+      if (res.ok) {
+        const data = await res.json();
+        setPortfolioData(data);
       }
+    } catch (e) {
+      console.error('Failed to fetch collection metadata', e);
+    } finally {
+      setLoadingPortfolio(false);
     }
-    fetchMetadata();
+  };
+
+  useEffect(() => {
+    fetchPortfolio();
   }, []);
 
   // Compute Stats
@@ -148,30 +152,25 @@ export function WallGrid({ collection: initialCollection }: WallGridProps) {
       arr.sort((a, b) => a.set.theme_id - b.set.theme_id);
     } else if (sortBy === 'top-rated') {
       arr.sort((a, b) => {
-        const aRating = collectionMetadata[a.set.set_num]?.ratings?.overall || 0;
-        const bRating = collectionMetadata[b.set.set_num]?.ratings?.overall || 0;
+        const items = portfolioData?.items || {};
+        const aRating = items[a.set.set_num]?.ratings?.overall || 0;
+        const bRating = items[b.set.set_num]?.ratings?.overall || 0;
         return bRating - aRating;
       });
     }
     return arr;
-  }, [localCollection, sortBy, collectionMetadata]);
+  }, [localCollection, sortBy, portfolioData]);
 
-  // When modal closes, refresh metadata quietly so Top Rated sort applies
+  // When modal closes, refresh metadata quietly so Top Rated sort applies and Portfolio chart updates
   const handleModalClose = async () => {
     setSelectedItem(null);
-    try {
-      const res = await fetch('/api/portfolio');
-      if (res.ok) {
-        const data = await res.json();
-        setCollectionMetadata(data.items || {});
-      }
-    } catch (e) {}
+    fetchPortfolio();
   };
 
   return (
     <>
       <div className="max-w-[1600px] mx-auto px-4 md:px-8">
-        <PortfolioChart />
+        <PortfolioChart data={portfolioData} loading={loadingPortfolio} />
       </div>
 
       <UserStats {...stats} />

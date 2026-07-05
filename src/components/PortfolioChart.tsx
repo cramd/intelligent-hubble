@@ -6,33 +6,13 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 
 import { TrendingUp, Loader2, DollarSign } from 'lucide-react';
 import { SetMetadata } from '@/app/api/set-metadata/[set_num]/route';
 
-interface PortfolioData {
+export interface PortfolioData {
   totalValue: number;
   totalMsrp?: number;
   items: Record<string, SetMetadata>;
 }
 
-export function PortfolioChart() {
-  const [data, setData] = useState<PortfolioData | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    async function fetchPortfolio() {
-      try {
-        const res = await fetch('/api/portfolio');
-        if (res.ok) {
-          const json = await res.json();
-          setData(json);
-        }
-      } catch (e) {
-        console.error('Failed to fetch portfolio', e);
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchPortfolio();
-  }, []);
-
+export function PortfolioChart({ data, loading }: { data: PortfolioData | null, loading: boolean }) {
   if (loading) {
     return (
       <div className="w-full bg-white/5 border border-white/10 rounded-3xl p-8 backdrop-blur-xl flex flex-col items-center justify-center h-64 shadow-2xl mb-8">
