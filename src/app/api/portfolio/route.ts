@@ -16,6 +16,7 @@ export async function GET() {
     const keys = await kv.getAllMetadataKeys(prefix);
 
     let totalValue = 0;
+    let totalMsrp = 0;
     const items: Record<string, SetMetadata> = {};
 
     for (const key of keys) {
@@ -26,6 +27,9 @@ export async function GET() {
         if (data.savedPrice) {
           totalValue += data.savedPrice;
         }
+        if (data.savedMsrp) {
+          totalMsrp += data.savedMsrp;
+        }
       }
     }
 
@@ -34,6 +38,7 @@ export async function GET() {
     
     return NextResponse.json({
       totalValue,
+      totalMsrp,
       items
     });
   } catch (error: any) {

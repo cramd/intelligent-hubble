@@ -8,6 +8,7 @@ import { SetMetadata } from '@/app/api/set-metadata/[set_num]/route';
 
 interface PortfolioData {
   totalValue: number;
+  totalMsrp?: number;
   items: Record<string, SetMetadata>;
 }
 
@@ -65,6 +66,10 @@ export function PortfolioChart() {
 
   const colors = ['#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981'];
 
+  const profitLoss = data.totalValue - (data.totalMsrp || 0);
+  const profitPercentage = data.totalMsrp ? (profitLoss / data.totalMsrp) * 100 : 0;
+  const isProfit = profitLoss >= 0;
+
   return (
     <motion.div 
       initial={{ opacity: 0, y: 20 }}
@@ -80,9 +85,21 @@ export function PortfolioChart() {
         <h2 className="text-5xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-600 drop-shadow-sm mb-4">
           ${data.totalValue.toFixed(2)}
         </h2>
-        <p className="text-white/40 text-xs max-w-xs mx-auto md:mx-0">
-          Based on the saved market values of your highest appreciating sets.
-        </p>
+        
+        {data.totalMsrp ? (
+          <div className="flex flex-col items-center md:items-start mt-2">
+            <p className="text-white/50 text-xs font-medium mb-1">
+              Total MSRP: ${data.totalMsrp.toFixed(2)}
+            </p>
+            <div className={`px-3 py-1 rounded-full text-sm font-bold ${isProfit ? 'bg-green-500/20 text-green-400 border-green-500/30' : 'bg-red-500/20 text-red-400 border-red-500/30'} border`}>
+              {isProfit ? '+' : ''}${profitLoss.toFixed(2)} ({isProfit ? '+' : ''}{profitPercentage.toFixed(1)}%)
+            </div>
+          </div>
+        ) : (
+          <p className="text-white/40 text-xs max-w-xs mx-auto md:mx-0">
+            Based on the saved market values of your highest appreciating sets.
+          </p>
+        )}
       </div>
 
       <div className="flex-[2] w-full h-64">

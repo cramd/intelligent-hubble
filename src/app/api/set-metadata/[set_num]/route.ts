@@ -4,6 +4,7 @@ import { cookies } from 'next/headers';
 
 export interface SetMetadata {
   savedPrice?: number;
+  savedMsrp?: number;
   note?: string;
   ratings?: {
     price: number;

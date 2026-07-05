@@ -56,9 +56,9 @@ export function SetDetailModal({ item, onClose }: SetDetailModalProps) {
       if (res.ok) {
         const data = await res.json();
         setMetadata(data);
-        if (data.savedPrice) {
-          // If we have a saved price, show it immediately without re-fetching
-          setPricing({ msrp: 0, currentValue: data.savedPrice }); // MSRP might be 0 here if not saved
+        if (data.savedPrice || data.savedMsrp) {
+          // If we have a saved price or msrp, show it immediately without re-fetching
+          setPricing({ msrp: data.savedMsrp || 0, currentValue: data.savedPrice || 0 });
         }
       }
     } catch (e) {
@@ -103,8 +103,8 @@ export function SetDetailModal({ item, onClose }: SetDetailModalProps) {
       const data = await res.json();
       setPricing(data);
       // Auto-save the fetched value to metadata
-      if (data.currentValue) {
-        await saveMetadata({ savedPrice: data.currentValue });
+      if (data.currentValue || data.msrp !== undefined) {
+        await saveMetadata({ savedPrice: data.currentValue, savedMsrp: data.msrp });
       }
     } catch (e) {
       console.error(e);
